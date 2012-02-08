@@ -1,0 +1,4 @@
+This is a work in progress...
+
+smartmetertexas.com provides meter information in 15-minute intervals.
+You can download a csv file with all of the data, so I'm writing a script to get some information out of it.

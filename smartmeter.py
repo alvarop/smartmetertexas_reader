@@ -17,6 +17,10 @@ daily_usage={}
 weekday_usage={}
 hourly_usage={}
 
+# Keep track of the total days to compute averages
+total_days = 0
+weekdays = {}
+
 for row in meterlog:
   # Skip the first row with the column titles
   if first_row:
@@ -32,10 +36,14 @@ for row in meterlog:
     
     # Add up the power used each 15 minute interval (all days)
     hourly_usage[row[2]] = hourly_usage.get(row[2],0) + float(row[4])
+    
+    # 15 minutes / 24 hours = 0.0104166667
+    total_days = total_days + 0.0104166667
+    weekdays[weekday] = weekdays.get(weekday,0) +  0.0104166667
+    
   
   # We're not in the first row anymore!
   first_row = 1;
-
 
 # open daily csv file
 dayfile = open('daily.csv', 'w')
@@ -50,22 +58,22 @@ for day, kwh in sorted(daily_usage.iteritems()):
 weekdayfile = open('weekday.csv', 'w')
 
 # First row
-weekdayfile.write('Day, Usage (kWh)\n')
+weekdayfile.write('Day, Average Usage (kWh)\n')
 
 # Instead of figuring out a way to sort by day, just print manually...
-weekdayfile.write('Mon,' + str(weekday_usage['Mon']) + '\n')
-weekdayfile.write('Tue,' + str(weekday_usage['Tue']) + '\n')
-weekdayfile.write('Wed,' + str(weekday_usage['Wed']) + '\n')
-weekdayfile.write('Thu,' + str(weekday_usage['Thu']) + '\n')
-weekdayfile.write('Fri,' + str(weekday_usage['Fri']) + '\n')
-weekdayfile.write('Sat,' + str(weekday_usage['Sat']) + '\n')
-weekdayfile.write('Sun,' + str(weekday_usage['Sun']) + '\n')
+weekdayfile.write('Mon,' + str(weekday_usage['Mon']/weekdays['Mon']) + '\n')
+weekdayfile.write('Tue,' + str(weekday_usage['Tue']/weekdays['Tue']) + '\n')
+weekdayfile.write('Wed,' + str(weekday_usage['Wed']/weekdays['Wed']) + '\n')
+weekdayfile.write('Thu,' + str(weekday_usage['Thu']/weekdays['Thu']) + '\n')
+weekdayfile.write('Fri,' + str(weekday_usage['Fri']/weekdays['Fri']) + '\n')
+weekdayfile.write('Sat,' + str(weekday_usage['Sat']/weekdays['Sat']) + '\n')
+weekdayfile.write('Sun,' + str(weekday_usage['Sun']/weekdays['Sun']) + '\n')
   
 
 # open hourly csv file
 hourfile = open('hourly.csv', 'w')
 
 # First row
-hourfile.write('Time, Usage (kWh)\n')
+hourfile.write('Time, Average Usage (kWh)\n')
 for hour, kwh in sorted(hourly_usage.iteritems()):
-  hourfile.write(hour + ',' + str(kwh) + '\n')
+  hourfile.write(hour + ',' + str(kwh/total_days) + '\n')
